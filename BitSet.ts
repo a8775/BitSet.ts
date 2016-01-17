@@ -168,7 +168,17 @@ export class BitSet {
         return this;
     }
 
-    public is(n: number): boolean {
+    /** check if is selected bit is set or any bit in BitSet is set 
+    */
+    public is(n?: number): boolean {
+        if (n === undefined) {
+            let l: number = this.buf.length;
+            let tbuf = this.buf;
+            for (let i = 0; i < l; i++)
+                if (tbuf[i] !== 0)
+                    return true;
+            return false;
+        }
         if (n < 0)
             throw new BitSetException("Index has to be greater than 0!");
 
@@ -178,66 +188,54 @@ export class BitSet {
         return (this.buf[(n / 8) | 0] & (0x01 << (n % 8))) === 0 ? false : true;
     }
 
-    public shr(n?: number): BitSet {
-        if (!n) n = 1;
-        if (n < 0)
-            throw new BitSetException("Index has to be greater than 0!");
+    public shift(n?: number): BitSet {
+        if (n === undefined)
+            n = 1;
         if (n === 0)
             return this;
 
         let tbuf = this.buf;
         let tlen = tbuf.length;
-        let nbytes = (n / 8) | 0;
+
+        let nbytes = (n / 8) | 0; //!!!
         let nbits = (n % 8);
 
-        if (nbytes > 0) {
-            let ibytes = 0;
-            for (; ibytes < (tlen - nbytes); ibytes++)
-                tbuf[ibytes] = tbuf[ibytes + nbytes];
-            for (; ibytes < tlen; ibytes++)
-                tbuf[ibytes] = 0x00;
-        }
+        if (n > 0) { // shift left
+            if (nbytes > 0) {
+                for (let i = tlen - 1; i >= 0; i--) {
+                    if ((i - nbytes) >= 0)
+                        tbuf[i] = tbuf[i - nbytes];
+                    else
+                        tbuf[i] = 0;
+                }
+            }
 
-        if (nbits > 0) {
-            for (let ibytes = 0; ibytes < tlen; ibytes++) {
-                tbuf[ibytes] = tbuf[ibytes] >>> nbits;
-                if (ibytes < (tlen - 1))
-                    tbuf[ibytes] |= (tbuf[ibytes + 1] << (8 - nbits)) && 0xFF;
+            if (nbits > 0) {
+                let m: number[] = [0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF80, 0xFC, 0xFE];
+                let r: number = 0;
+                for (let i = 0; i < tlen; i++) {
+                    let rtmp = (tbuf[i] & m[nbits]) >>> (8 - nbits);
+                    tbuf[i] <<= nbits;
+                    tbuf[i] |= r;
+                    r = rtmp;
+                }
             }
         }
-
-        return this;
-    }
-
-    public shl(n?: number): BitSet {
-        if (n === undefined) n = 1;
-        if (n < 0)
-            throw new BitSetException("Index has to be greater than 0!");
-        if (n === 0)
-            return this;
-
-        let tbuf = this.buf;
-        let tlen = tbuf.length;
-        let nbytes = (n / 8) | 0;
-        let nbits = (n % 8);
-
-        if (nbytes > 0) {
-            for (let i = tlen - 1; i >= 0; i--) {
-                if ((i - nbytes) >= 0)
-                    tbuf[i] = tbuf[i - nbytes];
-                else
-                    tbuf[i] = 0;
+        else { // shift right
+            if (nbytes > 0) {
+                let ibytes = 0;
+                for (; ibytes < (tlen - nbytes); ibytes++)
+                    tbuf[ibytes] = tbuf[ibytes + nbytes];
+                for (; ibytes < tlen; ibytes++)
+                    tbuf[ibytes] = 0x00;
             }
-        }
 
-        if (nbits > 0) {
-            let m: number[] = [0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF80, 0xFC, 0xFE];
-            let r: number = 0;
-            for (let i = 0; i < tlen; i++) {
-                let rtmp = (tbuf[i] & m[nbits]) >>> (8 - nbits);
-                tbuf[i] <<= nbits;
-                tbuf[i] |= r;
-                r = rtmp;
+            if (nbits > 0) {
+                for (let ibytes = 0; ibytes < tlen; ibytes++) {
+                    tbuf[ibytes] = tbuf[ibytes] >>> nbits;
+                    if (ibytes < (tlen - 1))
+                        tbuf[ibytes] |= (tbuf[ibytes + 1] << (8 - nbits)) && 0xFF;
+                }
             }
         }
 
@@ -246,19 +244,6 @@ export class BitSet {
 
     public range(start: number, end?: number): BitSet {
         return null;
-    }
-
-    public isZero(): boolean {
-        let l: number = this.buf.length;
-        let tbuf = this.buf;
-        for (let i = 0; i < l; i++)
-            if (tbuf[i] !== 0)
-                return false;
-        return true;
-    }
-
-    public isNotZero(): boolean {
-        return !this.isZero();
     }
 
     public static toOneZeroString(b: BitSet): string {

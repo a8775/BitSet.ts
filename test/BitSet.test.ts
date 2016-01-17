@@ -51,14 +51,14 @@ describe('BitSet.ts tests...', function() {
         });
     });
     
-    describe('Test Shl(1) and set(n)',function(){
+    describe('Test shift left by 1: shift(1) and set(n)',function(){
         let tests: { e: BitSet, es: string, a: BitSet, as: string }[] = [];
         for (let itest = 0; itest < 33; itest++) {
             let e: BitSet = new BitSet(32);
             e.set(0);
             let a: BitSet = new BitSet(32);
             for (let ibit = 0; ibit < itest; ibit++) 
-                e.shl(1);
+                e.shift(1);
             a.set(itest);
             let es: string = BitSet.toOneZeroString(e);
             let as: string = BitSet.toOneZeroString(a);
@@ -73,12 +73,12 @@ describe('BitSet.ts tests...', function() {
         });
     });
 
-    describe('Test shl(n) and set(n)',function(){
+    describe('Test shift left by n: shift(n) and set(n)',function(){
         let tests: { e: BitSet, es: string, a: BitSet, as: string }[] = [];
         for (let itest = 0; itest < 32; itest++) {
             let e: BitSet = new BitSet(32);
             e.set(0);
-            e.shl(itest);
+            e.shift(itest);
             let a: BitSet = new BitSet(32);
             a.set(itest);
             let es: string = BitSet.toOneZeroString(e);
