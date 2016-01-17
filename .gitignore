@@ -1,0 +1,16 @@
+node_modules/
+typings/
+BitSet.js
+BitSet.d.ts
+BitSet.js.map
+test/BitSet.test.js
+test/BitSet.test.d.ts
+test/BitSet.test.js.map
+test.ts
+test.js
+test.js.map
+test.d.ts
+todo.txt
+
+
+
