@@ -1,0 +1,25 @@
+{
+  "name": "BitSet.ts",
+  "version": "0.0.1",
+  "description": "TypeScript implementation of a bitset data structure that compactly stores bits.",
+  "main": "bitset.ts",
+  "scripts": {
+    "pretest": "tsc -project .",
+    "test": "mocha"
+  },
+  "keywords": [
+    "bitset",
+    "bitmap",
+    "bit",
+    "string",
+    "bit",
+    "vector",
+    "TypeScript"
+  ],
+  "author": "a8775",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*"
+  }
+}
