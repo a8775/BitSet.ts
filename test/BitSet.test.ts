@@ -93,6 +93,50 @@ describe('BitSet.ts tests...', function() {
             });
         });
     });
+
+    describe('Test shift right by 1: shift(-1) and set(n)',function(){
+        let tests: { e: BitSet, es: string, a: BitSet, as: string }[] = [];
+        for (let itest = 0; itest < 32; itest++) {
+            let e: BitSet = new BitSet(32);
+            e.set(31);
+            let a: BitSet = new BitSet(32);
+            for (let ibit = 0; ibit < itest; ibit++) 
+                e.shift(-1);
+            a.set(31-itest);
+            let es: string = BitSet.toOneZeroString(e);
+            let as: string = BitSet.toOneZeroString(a);
+
+            tests.push({ e, es, a, as });
+        }
+
+        tests.forEach(function(test) {
+            it('shold be equal ' + test.es, function() {
+                expect(test.es).to.be.equal(test.as);
+            });
+        });
+    });
+
+    describe('Test shift right by n: shift(n) and set(n)',function(){
+        let tests: { e: BitSet, es: string, a: BitSet, as: string }[] = [];
+        for (let itest = 0; itest < 32; itest++) {
+            let e: BitSet = new BitSet(32);
+            e.set(31);
+            e.shift(-itest);
+            let a: BitSet = new BitSet(32);
+            a.set(31-itest);
+            let es: string = BitSet.toOneZeroString(e);
+            let as: string = BitSet.toOneZeroString(a);
+
+            tests.push({ e, es, a, as });
+        }
+
+        tests.forEach(function(test) {
+            it('shold be equal ' + test.es, function() {
+                expect(test.es).to.be.equal(test.as);
+            });
+        });
+    });
+
 });
 
 

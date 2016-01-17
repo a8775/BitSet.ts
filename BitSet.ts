@@ -197,8 +197,8 @@ export class BitSet {
         let tbuf = this.buf;
         let tlen = tbuf.length;
 
-        let nbytes = (n / 8) | 0; //!!!
-        let nbits = (n % 8);
+        let nbytes = ((n>0?n:-n) / 8) | 0; 
+        let nbits = ((n>0?n:-n) % 8);
 
         if (n > 0) { // shift left
             if (nbytes > 0) {
@@ -211,7 +211,7 @@ export class BitSet {
             }
 
             if (nbits > 0) {
-                let m: number[] = [0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF80, 0xFC, 0xFE];
+                let m: number[] = [0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE];
                 let r: number = 0;
                 for (let i = 0; i < tlen; i++) {
                     let rtmp = (tbuf[i] & m[nbits]) >>> (8 - nbits);
@@ -231,10 +231,13 @@ export class BitSet {
             }
 
             if (nbits > 0) {
-                for (let ibytes = 0; ibytes < tlen; ibytes++) {
-                    tbuf[ibytes] = tbuf[ibytes] >>> nbits;
-                    if (ibytes < (tlen - 1))
-                        tbuf[ibytes] |= (tbuf[ibytes + 1] << (8 - nbits)) && 0xFF;
+                let m: number[] = [0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F];
+                let r: number = 0;
+                for (let i = tlen-1; i >= 0; i--) {
+                    let rtmp = (tbuf[i]&m[nbits])<<(8-nbits);
+                    tbuf[i] >>>= nbits;
+                    tbuf[i] |= r;
+                    r = rtmp;
                 }
             }
         }
