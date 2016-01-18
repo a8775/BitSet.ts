@@ -40,6 +40,9 @@ export class BitSet {
             throw new BitSetException('Length of two BitSet objects not equal!')
     }
 
+    /** create a copy of BitSet
+     * @returns BitSet
+     */
     public clone(): BitSet {
         let l = this.len;
         let r: BitSet = new BitSet(l);
@@ -68,20 +71,24 @@ export class BitSet {
         return this;
     }
 
-    /** size iin bits od BitSet
-     * 
+    /** size in bits of BitSet
+     * @returns number
      */
     public length(): number {
         return this.len;
     }
     
     /** size in bytes of BitSet
-     * 
+     * @returns number
      */
     public size(): number {
         return this.buf.length;
     }
 
+    /** set selected bit, if bit not selected set every bit in buffor
+     * @param  {number} n?
+     * @returns BitSet
+     */
     public set(n?: number): BitSet {
         if (n !== undefined) {
             if (n < 0)
@@ -98,6 +105,10 @@ export class BitSet {
         return this;
     }
 
+    /** unset selected bit, if bit not selected unset every bit in buffor
+     * @param  {number} n?
+     * @returns BitSet
+     */
     public unset(n?: number): BitSet {
         if (n) {
             if (n < 0)
@@ -114,6 +125,10 @@ export class BitSet {
         return this;
     }
 
+    /** logical operator AND
+     * @param  {BitSet} b
+     * @returns BitSet
+     */
     public and(b: BitSet): BitSet {
         this.assertEQ(b);
 
@@ -127,6 +142,10 @@ export class BitSet {
         return this;
     }
 
+    /** logical operator OR
+     * @param  {BitSet} b
+     * @returns BitSet
+     */
     public or(b: BitSet): BitSet {
         this.assertEQ(b);
 
@@ -140,6 +159,10 @@ export class BitSet {
         return this;
     }
 
+    /** logical operator XOR
+     * @param  {BitSet} b
+     * @returns BitSet
+     */
     public xor(b: BitSet): BitSet {
         this.assertEQ(b);
 
@@ -153,10 +176,18 @@ export class BitSet {
         return this;
     }
 
+    /** logical operator NAND
+     * @param  {BitSet} b
+     * @returns BitSet
+     */
     public nand(b: BitSet): BitSet {
         return this.and(b).not();
     }
-
+    
+    /** logical operator NOR
+     * @param  {BitSet} b
+     * @returns BitSet
+     */
     public nor(b: BitSet): BitSet {
         return this.or(b).not();
     }
@@ -174,7 +205,10 @@ export class BitSet {
 
         return true;
     }
-
+    
+    /** logical operator NOT 
+     * @returns BitSet
+     */
     public not(): BitSet {
         let tbuf = this.buf;
         let tlen = tbuf.length;
@@ -185,8 +219,10 @@ export class BitSet {
         return this;
     }
 
-    /** check if is selected bit is set or any bit in BitSet is set 
-    */
+    /** check if is selected bit is set, if not selected check if any bit is set
+     * @param  {number} n?
+     * @returns boolean
+     */
     public is(n?: number): boolean {
         if (n === undefined) {
             let l: number = this.buf.length;
@@ -204,7 +240,11 @@ export class BitSet {
 
         return (this.buf[(n / 8) | 0] & (0x01 << (n % 8))) === 0 ? false : true;
     }
-
+    
+    /** shift the buffor left (if n is positive) or right (if n is negative)
+     * @param  {number} n?
+     * @returns BitSet
+     */
     public shift(n?: number): BitSet {
         if (n === undefined)
             n = 1;
