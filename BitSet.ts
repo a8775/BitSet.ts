@@ -17,13 +17,22 @@ export class BitSet {
     private buf: Uint8Array;
     private len: number;
 
-    constructor(l: number) {
-        if (l <= 0)
-            throw new BitSetException("BitSet size has to be greater than 0!");
-
-        this.len = l | 0;
-
-        this.buf = new Uint8Array((l + 7) / 8 | 0);
+    constructor(o: number);
+    constructor(o: BitSet);
+    constructor(o: any) {
+        if (typeof o === 'number') {
+            if (o <= 0)
+                throw new BitSetException("BitSet size has to be greater than 0!");
+            this.len = o | 0;
+            this.buf = new Uint8Array((o + 7) / 8 | 0);
+        }
+        else if (typeof o === 'BitSet') {
+            this.len = o.len;
+            this.buf = new Uint8Array(o.buf.length);
+            for (let i = 0; i < o.buf.length; i++) {
+                this.buf[i] = o.buf[i];
+            }
+        }
     }
 
     private assertEQ(b: BitSet): void {
@@ -59,17 +68,26 @@ export class BitSet {
         return this;
     }
 
-    public size(): number {
+    /** size iin bits od BitSet
+     * 
+     */
+    public length(): number {
         return this.len;
+    }
+    
+    /** size in bytes of BitSet
+     * 
+     */
+    public size(): number {
+        return this.buf.length;
     }
 
     public set(n?: number): BitSet {
         if (n !== undefined) {
             if (n < 0)
-                throw new BitSetException("Index has to be greater than 0!");
-
-            if ((((n + 8) / 8) | 0) >= this.len)
-                throw new BitSetException("Index out of range!");
+                throw new BitSetException("Index out of range: index has to be greater than 0!");
+            if( n > this.len)
+                throw new BitSetException("Index out of range: index has to be lower than length!");
 
             this.buf[(n / 8) | 0] |= (0x01 << (n % 8));
         }
@@ -83,10 +101,9 @@ export class BitSet {
     public unset(n?: number): BitSet {
         if (n) {
             if (n < 0)
-                throw new BitSetException("Index has to be greater than 0!");
-
-            if ((((n + 8) / 8) | 0) > this.buf.length)
-                throw new BitSetException("Index out of range!");
+                throw new BitSetException("Index out of range: index has to be greater than 0!");
+            if( n > this.len)
+                throw new BitSetException("Index out of range: index has to be lower than length!");
 
             this.buf[n / 8] &= ~(0x01 << (n % 8));
         }
@@ -197,8 +214,8 @@ export class BitSet {
         let tbuf = this.buf;
         let tlen = tbuf.length;
 
-        let nbytes = ((n>0?n:-n) / 8) | 0; 
-        let nbits = ((n>0?n:-n) % 8);
+        let nbytes = ((n > 0 ? n : -n) / 8) | 0;
+        let nbits = ((n > 0 ? n : -n) % 8);
 
         if (n > 0) { // shift left
             if (nbytes > 0) {
@@ -233,8 +250,8 @@ export class BitSet {
             if (nbits > 0) {
                 let m: number[] = [0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F];
                 let r: number = 0;
-                for (let i = tlen-1; i >= 0; i--) {
-                    let rtmp = (tbuf[i]&m[nbits])<<(8-nbits);
+                for (let i = tlen - 1; i >= 0; i--) {
+                    let rtmp = (tbuf[i] & m[nbits]) << (8 - nbits);
                     tbuf[i] >>>= nbits;
                     tbuf[i] |= r;
                     r = rtmp;
@@ -250,7 +267,7 @@ export class BitSet {
     }
 
     public static toOneZeroString(b: BitSet): string {
-        let l: number = b.size();
+        let l: number = b.length();
         let ret: string = "";
 
         for (let i = l - 1; i >= 0; i--) {
