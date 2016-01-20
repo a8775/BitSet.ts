@@ -8,41 +8,41 @@ import {BitSet,BitSetSerializeType} from '../BitSet';
 
 describe('BitSet.ts tests...', function() {
 
-    describe('Test default serialize() and set()', function() {
+    describe('Test default stringify() and set()', function() {
         let l = 16;
         let b: BitSet = new BitSet(l);
         let s: number = 0;
 
         it('none bit set, expect to be equal 0000000000000000', function() {
-            expect(BitSet.serialize(b)).to.be.equal("0000000000000000");
+            expect(BitSet.stringify(b)).to.be.equal("0000000000000000");
         });
         it('one bit set(0), expect to be equal 0000000000000001', function() {
             b.set(0);
-            expect(BitSet.serialize(b)).to.be.equal("0000000000000001");
+            expect(BitSet.stringify(b)).to.be.equal("0000000000000001");
         });
         it('two bits set(1), expect to be equal 0000000000000011', function() {
             b.set(1);
-            expect(BitSet.serialize(b)).to.be.equal("0000000000000011");
+            expect(BitSet.stringify(b)).to.be.equal("0000000000000011");
         });
         it('three bits set(8), expect to be equal 0000000100000011', function() {
             b.set(8);
-            expect(BitSet.serialize(b)).to.be.equal("0000000100000011");
+            expect(BitSet.stringify(b)).to.be.equal("0000000100000011");
         });
         it('four bits set(15), expect to be equal 1000000100000011', function() {
             b.set(15);
-            expect(BitSet.serialize(b)).to.be.equal("1000000100000011");
+            expect(BitSet.stringify(b)).to.be.equal("1000000100000011");
         });
     });
 
-    describe('Test serialize() and fromOneZeroString()', function() {
+    describe('Test stringify() and fromOneZeroString()', function() {
         let tests: { e: BitSet, es: string, a: BitSet, as: string }[] = [];
         for (let itest = 0; itest < 10; itest++) {
             let e: BitSet = new BitSet(32);
             for (let ibit = 0; ibit < 10; ibit++)
                 e.set(Math.round(Math.random() * 32));
-            let es: string = BitSet.serialize(e);
-            let a: BitSet = BitSet.deserialize(es);
-            let as: string = BitSet.serialize(a);
+            let es: string = BitSet.stringify(e);
+            let a: BitSet = BitSet.parse(es);
+            let as: string = BitSet.stringify(a);
 
             tests.push({ e, es, a, as });
         }
@@ -63,8 +63,8 @@ describe('BitSet.ts tests...', function() {
             for (let ibit = 0; ibit < itest; ibit++) 
                 e.shift(1);
             a.set(itest);
-            let es: string = BitSet.serialize(e);
-            let as: string = BitSet.serialize(a);
+            let es: string = BitSet.stringify(e);
+            let as: string = BitSet.stringify(a);
 
             tests.push({ e, es, a, as });
         }
@@ -84,8 +84,8 @@ describe('BitSet.ts tests...', function() {
             e.shift(itest);
             let a: BitSet = new BitSet(32);
             a.set(itest);
-            let es: string = BitSet.serialize(e);
-            let as: string = BitSet.serialize(a);
+            let es: string = BitSet.stringify(e);
+            let as: string = BitSet.stringify(a);
 
             tests.push({ e, es, a, as });
         }
@@ -106,8 +106,8 @@ describe('BitSet.ts tests...', function() {
             for (let ibit = 0; ibit < itest; ibit++) 
                 e.shift(-1);
             a.set(31-itest);
-            let es: string = BitSet.serialize(e);
-            let as: string = BitSet.serialize(a);
+            let es: string = BitSet.stringify(e);
+            let as: string = BitSet.stringify(a);
 
             tests.push({ e, es, a, as });
         }
@@ -127,8 +127,8 @@ describe('BitSet.ts tests...', function() {
             e.shift(-itest);
             let a: BitSet = new BitSet(32);
             a.set(31-itest);
-            let es: string = BitSet.serialize(e);
-            let as: string = BitSet.serialize(a);
+            let es: string = BitSet.stringify(e);
+            let as: string = BitSet.stringify(a);
 
             tests.push({ e, es, a, as });
         }
@@ -140,31 +140,58 @@ describe('BitSet.ts tests...', function() {
         });
     });
 
-    describe('Test HEX serialize', function(){
+    describe('Test Hex stringify', function(){
         let l = 16;
         let b: BitSet = new BitSet(l);
         let s: number = 0;
 
         it('none bit set, expect to be equal BitSet:HEX:0000', function() {
-            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:0000");
+            expect(BitSet.stringify(b,BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX:0000");
         });
         it('one bit set(0), expect to be equal BitSet:HEX:0001', function() {
             b.set(0);
-            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:0001");
+            expect(BitSet.stringify(b,BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX:0001");
         });
         it('two bits set(1), expect to be equal BitSet:HEX:0003', function() {
             b.set(1);
-            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:0003");
+            expect(BitSet.stringify(b,BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX:0003");
         });
         it('three bits set(8), expect to be equal BitSet:HEX:0103', function() {
             b.set(8);
-            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:0103");
+            expect(BitSet.stringify(b,BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX:0103");
         });
         it('four bits set(15), expect to be equal BitSet:HEX:8103', function() {
             b.set(15);
-            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:8103");
+            expect(BitSet.stringify(b,BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX:8103");
         });
     });
+    
+    describe('Test Base64 stringify', function(){
+        let l = 16;
+        let b: BitSet = new BitSet(l);
+        let s: number = 0;
+
+        it('none bit set, expect to be equal BitSet:BASE64:AAA=', function() {
+            expect(BitSet.stringify(b,BitSetSerializeType.Base64)).to.be.equal("BitSet:BASE64:AAA=");
+        });
+        it('one bit set(0), expect to be equal BitSet:BASE64:AQA=', function() {
+            b.set(0);
+            expect(BitSet.stringify(b,BitSetSerializeType.Base64)).to.be.equal("BitSet:BASE64:AQA=");
+        });
+        it('two bits set(1), expect to be equal BitSet:BASE64:AwA=', function() {
+            b.set(1);
+            expect(BitSet.stringify(b,BitSetSerializeType.Base64)).to.be.equal("BitSet:BASE64:AwA=");
+        });
+        it('three bits set(8), expect to be equal BitSet:BASE64:AwE=', function() {
+            b.set(8);
+            expect(BitSet.stringify(b,BitSetSerializeType.Base64)).to.be.equal("BitSet:BASE64:AwE=");
+        });
+        it('four bits set(15), expect to be equal BitSet:BASE64:A4E=', function() {
+            b.set(15);
+            expect(BitSet.stringify(b,BitSetSerializeType.Base64)).to.be.equal("BitSet:BASE64:A4E=");
+        });
+    });
+    
 });
 
 

@@ -14,10 +14,9 @@ export class BitSetException implements Error {
 }
 
 export enum BitSetSerializeType {
-    BSS, // 01string (BitSetString)    
-    HEX, // hex encoded string
-    //    BASE64, // base64 encoded string   
-    //    BIN, // BitArray
+    OneZero, // 01string (BitSetString)    
+    Hex, // hex encoded string
+    Base64, // base64 encoded string   
 }
 
 export class BitSet {
@@ -334,13 +333,20 @@ export class BitSet {
         return null;
     }
 
-    public static serialize(b: BitSet, t?: BitSetSerializeType): string {
+    /**
+     * stringify BitSet object with selected algorithm, if not selected use
+     * 01 algorithm without prefix
+     * @param  {BitSet} b
+     * @param  {BitSetSerializeType} t?
+     * @returns string
+     */
+    public static stringify(b: BitSet, t?: BitSetSerializeType): string {
         let l: number = b.len;
         let s: number = b.buf.length;
         let ret: string = "";
 
-        if ((t === undefined) || (t === BitSetSerializeType.BSS)) {
-            if( t === BitSetSerializeType.BSS)
+        if ((t === undefined) || (t === BitSetSerializeType.OneZero)) {
+            if( t === BitSetSerializeType.OneZero)
                 ret = "BitSet:01:";
             for (let i = l - 1; i >= 0; i--) {
                 if (b.isset(i) === true)
@@ -351,25 +357,39 @@ export class BitSet {
             return ret;
         }
 
-        if (t === BitSetSerializeType.HEX) {
+        if (t === BitSetSerializeType.Hex) {
             let a: string[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
             ret = "BitSet:HEX:";
             for (let i = s - 1; i >= 0; i--)
                 ret += a[(b.buf[i] >>> 4) | 0] + a[(b.buf[i] & 0x0F) | 0];
             return ret;
         }
+        
+        if( t===BitSetSerializeType.Base64)
+            return "BitSet:BASE64:" + (new Buffer(b.buf).toString('base64'));
+            
         return null;
     }
+    
     /**
      * detect string encoding type for later deserialize
      * @param  {string} s 
      * @returns BitSetSerializeType encoding type or null if something wrong
      */
     private static check01(s: string): BitSetSerializeType {
+
+        if( s.indexOf("BitSet:01:")===0)
+            return BitSetSerializeType.OneZero;
+            
+        if( s.indexOf("BitSet:HEX:")===0)
+            return BitSetSerializeType.Hex;
+
+        if( s.indexOf("BitSet:BASE64:")===0)
+            return BitSetSerializeType.Base64;
+
+        // no prefix, check if 01 string            
         var i = 0;
         var t = true;
-
-        // trest for 01-string without prefix
         for (i = s.length - 1; i >= 0; i--) {
             if ((s[i] !== '0') && (s[i] !== '1')) {
                 t = false;
@@ -377,18 +397,20 @@ export class BitSet {
             }
         }
         if (t === true)
-            return BitSetSerializeType.BSS;
+            return BitSetSerializeType.OneZero;
             
-        // special tests with prefix
-        //TODO: write supported tests
-
         return null;
     }
 
-    public static deserialize(s: string): BitSet {
-        // if only '0's and '1's than BSS type
+    /**
+     * parse string and create new BitSet object
+     * @param  {string} s
+     * @returns BitSet
+     */
+    public static parse(s: string): BitSet {
+        // if only '0's and '1's than OneZero type
         switch (BitSet.check01(s)) {
-            case BitSetSerializeType.BSS:
+            case BitSetSerializeType.OneZero:
                 let l = s.length;
                 let b: BitSet = new BitSet(l);
                 for (let i: number = 0; i < s.length; i++)
