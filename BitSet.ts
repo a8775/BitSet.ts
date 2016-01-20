@@ -327,7 +327,7 @@ export class BitSet {
         return null;
     }
 
-    public static toOneZeroString(b: BitSet): string {
+    public static serialize(b: BitSet): string {
         let l: number = b.length();
         let ret: string = "";
 
@@ -341,7 +341,7 @@ export class BitSet {
         return ret;
     }
 
-    public static fromOneZeroString(s: string): BitSet {
+    public static deserialize(s: string): BitSet {
         let l = s.length;
         let b: BitSet = new BitSet(l);
         for (let i: number = 0; i < s.length; i++)
