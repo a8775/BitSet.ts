@@ -13,6 +13,13 @@ export class BitSetException implements Error {
     }
 }
 
+export enum BitSetSerializeType {
+    BSS, // 01string (BitSetString)    
+    HEX, // hex encoded string
+    //    BASE64, // base64 encoded string   
+    //    BIN, // BitArray
+}
+
 export class BitSet {
     private buf: Uint8Array;
     private len: number;
@@ -105,7 +112,7 @@ export class BitSet {
         if (n !== undefined) {
             if (n < 0)
                 throw new BitSetException("Index out of range: index has to be greater than 0!");
-            if( n > this.len)
+            if (n > this.len)
                 throw new BitSetException("Index out of range: index has to be lower than length!");
 
             this.buf[(n / 8) | 0] |= (0x01 << (n % 8));
@@ -126,7 +133,7 @@ export class BitSet {
         if (n) {
             if (n < 0)
                 throw new BitSetException("Index out of range: index has to be greater than 0!");
-            if( n > this.len)
+            if (n > this.len)
                 throw new BitSetException("Index out of range: index has to be lower than length!");
 
             this.buf[n / 8] &= ~(0x01 << (n % 8));
@@ -327,27 +334,70 @@ export class BitSet {
         return null;
     }
 
-    public static serialize(b: BitSet): string {
-        let l: number = b.length();
+    public static serialize(b: BitSet, t?: BitSetSerializeType): string {
+        let l: number = b.len;
+        let s: number = b.buf.length;
         let ret: string = "";
 
-        for (let i = l - 1; i >= 0; i--) {
-            if (b.isset(i) === true)
-                ret += "1";
-            else
-                ret += "0";
+        if ((t === undefined) || (t === BitSetSerializeType.BSS)) {
+            if( t === BitSetSerializeType.BSS)
+                ret = "BitSet:01:";
+            for (let i = l - 1; i >= 0; i--) {
+                if (b.isset(i) === true)
+                    ret += "1";
+                else
+                    ret += "0";
+            }
+            return ret;
         }
 
-        return ret;
+        if (t === BitSetSerializeType.HEX) {
+            let a: string[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
+            ret = "BitSet:HEX:";
+            for (let i = s - 1; i >= 0; i--)
+                ret += a[(b.buf[i] >>> 4) | 0] + a[(b.buf[i] & 0x0F) | 0];
+            return ret;
+        }
+        return null;
+    }
+    /**
+     * detect string encoding type for later deserialize
+     * @param  {string} s 
+     * @returns BitSetSerializeType encoding type or null if something wrong
+     */
+    private static check01(s: string): BitSetSerializeType {
+        var i = 0;
+        var t = true;
+
+        // trest for 01-string without prefix
+        for (i = s.length - 1; i >= 0; i--) {
+            if ((s[i] !== '0') && (s[i] !== '1')) {
+                t = false;
+                break;
+            }
+        }
+        if (t === true)
+            return BitSetSerializeType.BSS;
+            
+        // special tests with prefix
+        //TODO: write supported tests
+
+        return null;
     }
 
     public static deserialize(s: string): BitSet {
-        let l = s.length;
-        let b: BitSet = new BitSet(l);
-        for (let i: number = 0; i < s.length; i++)
-            if (s.charAt(i) === "1")
-                b.set(l - i - 1);
-        return b;
+        // if only '0's and '1's than BSS type
+        switch (BitSet.check01(s)) {
+            case BitSetSerializeType.BSS:
+                let l = s.length;
+                let b: BitSet = new BitSet(l);
+                for (let i: number = 0; i < s.length; i++)
+                    if (s.charAt(i) === "1")
+                        b.set(l - i - 1);
+                return b;
+            default:
+        }
+        return null;
     }
 }
 

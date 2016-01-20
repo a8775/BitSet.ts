@@ -4,15 +4,18 @@ import assert = require('assert');
 import chai = require('chai');
 var expect = chai.expect;
 
-import {BitSet} from '../BitSet';
+import {BitSet,BitSetSerializeType} from '../BitSet';
 
 describe('BitSet.ts tests...', function() {
 
-    describe('Test serialize() and set()', function() {
+    describe('Test default serialize() and set()', function() {
         let l = 16;
         let b: BitSet = new BitSet(l);
         let s: number = 0;
 
+        it('none bit set, expect to be equal 0000000000000000', function() {
+            expect(BitSet.serialize(b)).to.be.equal("0000000000000000");
+        });
         it('one bit set(0), expect to be equal 0000000000000001', function() {
             b.set(0);
             expect(BitSet.serialize(b)).to.be.equal("0000000000000001");
@@ -137,6 +140,31 @@ describe('BitSet.ts tests...', function() {
         });
     });
 
+    describe('Test HEX serialize', function(){
+        let l = 16;
+        let b: BitSet = new BitSet(l);
+        let s: number = 0;
+
+        it('none bit set, expect to be equal BitSet:HEX:0000', function() {
+            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:0000");
+        });
+        it('one bit set(0), expect to be equal BitSet:HEX:0001', function() {
+            b.set(0);
+            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:0001");
+        });
+        it('two bits set(1), expect to be equal BitSet:HEX:0003', function() {
+            b.set(1);
+            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:0003");
+        });
+        it('three bits set(8), expect to be equal BitSet:HEX:0103', function() {
+            b.set(8);
+            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:0103");
+        });
+        it('four bits set(15), expect to be equal BitSet:HEX:8103', function() {
+            b.set(15);
+            expect(BitSet.serialize(b,BitSetSerializeType.HEX)).to.be.equal("BitSet:HEX:8103");
+        });
+    });
 });
 
 
