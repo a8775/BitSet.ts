@@ -14,7 +14,7 @@ export class BitSetException implements Error {
 }
 
 export enum BitSetSerializeType {
-    OneZero, // 01string (BitSetString)    
+    OneZero, // 01 encoded string     
     Hex, // hex encoded string
     Base64, // base64 encoded string   
 }
@@ -346,7 +346,7 @@ export class BitSet {
         let ret: string = "";
 
         if ((t === undefined) || (t === BitSetSerializeType.OneZero)) {
-            if( t === BitSetSerializeType.OneZero)
+            if (t === BitSetSerializeType.OneZero)
                 ret = "BitSet:01:";
             for (let i = l - 1; i >= 0; i--) {
                 if (b.isset(i) === true)
@@ -364,10 +364,10 @@ export class BitSet {
                 ret += a[(b.buf[i] >>> 4) | 0] + a[(b.buf[i] & 0x0F) | 0];
             return ret;
         }
-        
-        if( t===BitSetSerializeType.Base64)
+
+        if (t === BitSetSerializeType.Base64)
             return "BitSet:BASE64:" + (new Buffer(b.buf).toString('base64'));
-            
+
         return null;
     }
     
@@ -376,15 +376,14 @@ export class BitSet {
      * @param  {string} s 
      * @returns BitSetSerializeType encoding type or null if something wrong
      */
-    private static check01(s: string): BitSetSerializeType {
-
-        if( s.indexOf("BitSet:01:")===0)
+    private static checkformat(s: string): BitSetSerializeType {
+        if (s.indexOf("BitSet:01:") === 0)
             return BitSetSerializeType.OneZero;
-            
-        if( s.indexOf("BitSet:HEX:")===0)
+
+        if (s.indexOf("BitSet:HEX:") === 0)
             return BitSetSerializeType.Hex;
 
-        if( s.indexOf("BitSet:BASE64:")===0)
+        if (s.indexOf("BitSet:BASE64:") === 0)
             return BitSetSerializeType.Base64;
 
         // no prefix, check if 01 string            
@@ -398,8 +397,55 @@ export class BitSet {
         }
         if (t === true)
             return BitSetSerializeType.OneZero;
-            
+
         return null;
+    }
+
+    private static parseOneZero(s: string): BitSet {
+        let i = 0;
+        let p = "BitSet:01:";
+
+        if (s.indexOf(p) === 0)
+            i = p.length;
+
+        let l = s.length - i;
+        let b: BitSet = new BitSet(l);
+        for (let idx = 0; i < l; i++ , idx++)
+            if (s.charAt(i) === "1")
+                b.set(l - idx - 1);
+
+        return b;
+    }
+
+    private static parseBase64(s: string): BitSet {
+        let i = 0;
+        let p = "BitSet:BASE64:";
+
+        if (s.indexOf(p) !== 0)
+            return null;
+        i = p.length;
+
+        var btmp = new Buffer(s.substr(i), 'base64');
+        let b: BitSet = new BitSet((btmp.length * 8) | 0); //!!!
+        b.buf = new Uint8Array(btmp);
+
+        return b;
+    }
+
+    private static parseHex(s: string): BitSet {
+        let i = 0;
+        let p = "BitSet:HEX:";
+
+        if (s.indexOf(p) !== 0)
+            return null;
+        i = p.length;
+
+        let b: BitSet = new BitSet(((s.length - i) * 8 / 2) | 0); //!!!
+
+        for (let idx = 0; i < s.length; i += 2, idx++)
+            b.buf[b.buf.length - idx - 1] = parseInt(s.substr(i, 2), 16);
+
+        return b;
     }
 
     /**
@@ -408,16 +454,13 @@ export class BitSet {
      * @returns BitSet
      */
     public static parse(s: string): BitSet {
-        // if only '0's and '1's than OneZero type
-        switch (BitSet.check01(s)) {
+        switch (BitSet.checkformat(s)) {
             case BitSetSerializeType.OneZero:
-                let l = s.length;
-                let b: BitSet = new BitSet(l);
-                for (let i: number = 0; i < s.length; i++)
-                    if (s.charAt(i) === "1")
-                        b.set(l - i - 1);
-                return b;
-            default:
+                return BitSet.parseOneZero(s);
+            case BitSetSerializeType.Base64:
+                return BitSet.parseBase64(s);
+            case BitSetSerializeType.Hex:
+                return BitSet.parseHex(s);
         }
         return null;
     }
