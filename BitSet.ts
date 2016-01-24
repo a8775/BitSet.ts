@@ -87,6 +87,7 @@ export class BitSet {
     }
     
     /**
+     * change size of the BitSet
      * @param  {number} l in bits
      * @returns BitSet
      */
