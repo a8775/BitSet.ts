@@ -29,13 +29,13 @@ export class BitSet {
     constructor(o: ArrayBuffer);
     constructor(o: Uint8Array);
     constructor(o: any) {
-        if (o === undefined) 
+        if (o === undefined)
             throw new BitSetException("Constructor for 'undefined' is not implemented!");
 
         if (typeof o === 'number') {
             this.assertLEN(o);
-            this.len = o | 0;
             this.buf = new Uint8Array((o + 7) / 8 | 0);
+            this.len = o;
         }
         else if (o instanceof BitSet) {
             this.init(o.buf);
@@ -54,6 +54,7 @@ export class BitSet {
             throw new BitSetException(`Constructor for type: '${typeof o}' is not implemented!`);
         }
     }
+    
     /**
      * private initialization method
      * @param  {Uint8Array} o
@@ -88,8 +89,22 @@ export class BitSet {
             throw new BitSetException('Length of BitSet not defined!');
         if (l <= 0)
             throw new BitSetException('Length of BitSet has to be greater than zero!');
+        if (l !== (l | 0))
+            throw new BitSetException('Length of BitSet has to be integer value!');
         if (l % 8 !== 0)
             throw new BitSetException('Length of BitSet have to be the multiply of 8 bit!');
+    }
+    
+    /**
+     * check index n is in range of BitSet
+     * @param  {number} n
+     * @returns void
+     */
+    private assertIDX(n: number): void {
+        if (n < 0)
+            throw new BitSetException("Index out of range: index has to be greater than 0!");
+        if (n > this.len)
+            throw new BitSetException("Index out of range: index has to be lower than length!");
     }
 
     /**
@@ -107,17 +122,14 @@ export class BitSet {
      */
     public resize(l: number): BitSet {
         this.assertLEN(l);
-
-        if (this.len === l)
-            return this;
-
-        let tmpb: Uint8Array = new Uint8Array(((l + 7) / 8) | 0);
-        let tbuf: Uint8Array = this.buf;
-        for (let i = 0; (i < this.buf.length) && (i < tmpb.length); i++)
-            tmpb[i] = tbuf[i];
-
-        this.buf = tmpb;
-        this.len = l;
+        if (this.len !== l) {
+            let tmpb: Uint8Array = new Uint8Array(((l + 7) / 8) | 0);
+            let tbuf: Uint8Array = this.buf;
+            for (let i = 0; (i < this.buf.length) && (i < tmpb.length); i++)
+                tmpb[i] = tbuf[i];
+            this.buf = tmpb;
+            this.len = l;
+        }
 
         return this;
     }
@@ -131,25 +143,13 @@ export class BitSet {
     }
     
     /** 
-     * size in bytes of BitSet
-     * @returns number
-     */
-    public size(): number {
-        return this.buf.length;
-    }
-
-    /** 
-     * set selected bit, if bit not selected set every bit in buffor
+     * set selected bit, if bit not selected set every bit in buffer
      * @param  {number} n?
      * @returns BitSet
      */
     public set(n?: number): BitSet {
         if (n !== undefined) {
-            if (n < 0)
-                throw new BitSetException("Index out of range: index has to be greater than 0!");
-            if (n > this.len)
-                throw new BitSetException("Index out of range: index has to be lower than length!");
-
+            this.assertIDX(n);
             this.buf[(n / 8) | 0] |= (0x01 << (n % 8));
         }
         else {
@@ -160,17 +160,13 @@ export class BitSet {
     }
 
     /** 
-     * unset selected bit, if bit not selected unset every bit in buffor
+     * unset selected bit, if bit not selected unset every bit in buffer
      * @param  {number} n?
      * @returns BitSet
      */
     public unset(n?: number): BitSet {
         if (n) {
-            if (n < 0)
-                throw new BitSetException("Index out of range: index has to be greater than 0!");
-            if (n > this.len)
-                throw new BitSetException("Index out of range: index has to be lower than length!");
-
+            this.assertIDX(n);
             this.buf[n / 8] &= ~(0x01 << (n % 8));
         }
         else {
@@ -251,7 +247,12 @@ export class BitSet {
     public nor(b: BitSet): BitSet {
         return this.or(b).not();
     }
-
+    
+    /**
+     * check the b is equal to BitSet
+     * @param  {BitSet} b
+     * @returns boolean
+     */
     public equal(b: BitSet): boolean {
         this.assertEQ(b);
 
@@ -287,24 +288,19 @@ export class BitSet {
      */
     public isset(n?: number): boolean {
         if (n === undefined) {
-            let l: number = this.buf.length;
             let tbuf = this.buf;
+            let l: number = tbuf.length;
             for (let i = 0; i < l; i++)
                 if (tbuf[i] !== 0)
                     return true;
             return false;
         }
-        if (n < 0)
-            throw new BitSetException("Index has to be greater than 0!");
-
-        if ((((n + 8) / 8) | 0) > this.buf.length)
-            throw new BitSetException("Index out of range!");
-
+        this.assertIDX(n);
         return (this.buf[(n / 8) | 0] & (0x01 << (n % 8))) === 0 ? false : true;
     }
     
     /** 
-     * shift the buffor left (if n is positive) or right (if n is negative)
+     * shift the buffer left (if n is positive) or right (if n is negative)
      * @param  {number} n?
      * @returns BitSet
      */
@@ -404,31 +400,28 @@ export class BitSet {
     }
 
     private static parseOneZero(s: string): BitSet {
-        let b: BitSet = null;
+        let l = s.length;
+        let ss = s;
 
         if (s.indexOf("BitSet:01") === 0) {
             let myRe = /^BitSet:01\((\d+)\):([01]+)/g;
             let r = myRe.exec(s);
             if (r === null)
                 throw new BitSetException('Parse OneZero format (prefixed) failed - syntax error!');
-            let l = parseInt(r[1]);
+            l = parseInt(r[1]);
             if (r[2].length !== l)
-                throw new BitSetException('Parse OneZero format (prefixed) failed - length mismatch! ');
+                throw new BitSetException('Parse OneZero format (prefixed) failed - length mismatch!');
+            ss = r[2];
+        }
 
-            b = new BitSet(l);
-            for (let i = 0; i < l; i++)
-                if (r[2].charAt(i) === "1")
-                    b.set(l - i - 1);
+        let b: BitSet = new BitSet(l);
+        for (let i = 0; i < l; i++) {
+            if (ss.charAt(i) === "1")
+                b.set(l - i - 1);
+            else if (ss.charAt(i) !== "0")
+                throw new BitSetException("Parse OneZero format failed zero-one string expected - syntax error!");
         }
-        else {
-            let l = s.length;
-            b = new BitSet(l);
-            for (let i = 0; i < l; i++)
-                if (s.charAt(i) === "1")
-                    b.set(l - i - 1);
-                else if (s.charAt(i) !== "0")
-                    throw new BitSetException('Parse OneZero format (not prefixed) failed - syntax error!');
-        }
+
         return b;
     }
 
