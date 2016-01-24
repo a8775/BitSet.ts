@@ -1,8 +1,8 @@
 # BitSet.ts
 TypeScript implementation of a bitset data structure that compactly stores bits. 
-This is Node.js implementation, will not work in browser without modyfications.
+This is Node.js implementation, will not work in a browser without modyfications.
 
-Warning: temporarly the size of BitSet has to be multiply of 8
+Warning: the size of BitSet has to be multiply of 8
 
 ## Can I use it?
 Yes, but not for production, as code is not stabilized and not fully tested.

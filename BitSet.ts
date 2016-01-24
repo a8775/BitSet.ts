@@ -9,7 +9,7 @@ export class BitSetException implements Error {
     }
 
     public toString(): string {
-        return "{" + this.name + "," + this.message + "}";
+        return "{" + this.name + ": " + this.message + "}";
     }
 }
 
@@ -25,22 +25,46 @@ export class BitSet {
 
     constructor(o: number);
     constructor(o: BitSet);
+    constructor(o: Buffer);
+    constructor(o: ArrayBuffer);
+    constructor(o: Uint8Array);
     constructor(o: any) {
+        if (o === undefined) 
+            throw new BitSetException("Constructor for 'undefined' is not implemented!");
+
         if (typeof o === 'number') {
             this.assertLEN(o);
             this.len = o | 0;
             this.buf = new Uint8Array((o + 7) / 8 | 0);
         }
-        else if (typeof o === 'BitSet') {
+        else if (o instanceof BitSet) {
+            this.init(o.buf);
             this.len = o.len;
-            this.buf = new Uint8Array(o.buf.length);
-            for (let i = 0; i < o.buf.length; i++) {
-                this.buf[i] = o.buf[i];
-            }
+        }
+        else if (o instanceof Buffer) {
+            this.init(o);
+        }
+        else if (o instanceof ArrayBuffer) {
+            this.init(new Uint8Array(o));
+        }
+        else if (o instanceof Uint8Array) {
+            this.init(o);
         }
         else {
-            throw new BitSetException('Constructor for that type is not implemented!');
+            throw new BitSetException(`Constructor for type: '${typeof o}' is not implemented!`);
         }
+    }
+    /**
+     * private initialization method
+     * @param  {Uint8Array} o
+     * @returns void
+     */
+    private init(o: Uint8Array): void {
+        this.assertLEN(o.length * 8);
+        this.len = o.length * 8;
+        this.buf = new Uint8Array(o.length);
+        for (let i = 0; i < o.length; i++)
+            this.buf[i] = o[i];
     }
     
     /**
@@ -73,15 +97,7 @@ export class BitSet {
      * @returns BitSet
      */
     public clone(): BitSet {
-        let tbuf = this.buf;
-        let tlen = tbuf.length;
-        let r: BitSet = new BitSet(this.len);
-        let rbuf = r.buf;
-
-        for (let i = 0; i < tlen; i++)
-            rbuf[i] = tbuf[i];
-
-        return r;
+        return new BitSet(this);
     }
     
     /**
@@ -349,10 +365,6 @@ export class BitSet {
         return this;
     }
 
-    public range(start: number, end?: number): BitSet {
-        return null;
-    }
-
     /**
      * stringify BitSet object with selected algorithm, if not selected use
      * 01 algorithm without prefix
@@ -390,36 +402,6 @@ export class BitSet {
 
         return null;
     }
-    
-    /**
-     * detect string encoding type for later deserialize
-     * @param  {string} s 
-     * @returns BitSetSerializeType encoding type or null if something wrong
-     */
-    private static checkformat(s: string): BitSetSerializeType {
-        if (s.indexOf("BitSet:01") === 0)
-            return BitSetSerializeType.OneZero;
-
-        if (s.indexOf("BitSet:HEX") === 0)
-            return BitSetSerializeType.Hex;
-
-        if (s.indexOf("BitSet:BASE64") === 0)
-            return BitSetSerializeType.Base64;
-
-        // no prefix, check if 01 string            
-        var i = 0;
-        var t = true;
-        for (i = s.length - 1; i >= 0; i--) {
-            if ((s[i] !== '0') && (s[i] !== '1')) {
-                t = false;
-                break;
-            }
-        }
-        if (t === true)
-            return BitSetSerializeType.OneZero;
-
-        return null;
-    }
 
     private static parseOneZero(s: string): BitSet {
         let b: BitSet = null;
@@ -446,16 +428,12 @@ export class BitSet {
                     b.set(l - i - 1);
                 else if (s.charAt(i) !== "0")
                     throw new BitSetException('Parse OneZero format (not prefixed) failed - syntax error!');
-
         }
         return b;
     }
 
     private static parseBase64(s: string): BitSet {
-        let i = 0;
-        let p = "BitSet:BASE64";
-
-        if (s.indexOf(p) !== 0)
+        if (s.indexOf("BitSet:BASE64") !== 0)
             throw new BitSetException('Parse BASE64 format failed - no BitSet:BASE64 prefix!');
 
         let myRe = /^BitSet:BASE64\((\d+)\):(.+)/g;
@@ -507,15 +485,13 @@ export class BitSet {
      * @returns BitSet
      */
     public static parse(s: string): BitSet {
-        switch (BitSet.checkformat(s)) {
-            case BitSetSerializeType.OneZero:
-                return BitSet.parseOneZero(s);
-            case BitSetSerializeType.Base64:
-                return BitSet.parseBase64(s);
-            case BitSetSerializeType.Hex:
-                return BitSet.parseHex(s);
-        }
-        return null;
+        if (s.indexOf("BitSet:HEX") === 0)
+            return BitSet.parseHex(s);
+
+        if (s.indexOf("BitSet:BASE64") === 0)
+            return BitSet.parseBase64(s);
+
+        return BitSet.parseOneZero(s);
     }
 }
 
