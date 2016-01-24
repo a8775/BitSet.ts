@@ -192,6 +192,28 @@ describe('BitSet.ts tests...', function() {
         });
     });
     
+    describe('Test clone()', function() {
+        let tests: { e: BitSet, es: string, a: BitSet, as: string }[] = [];
+        
+        for (let itest = 0; itest < 10; itest++) {
+            let e: BitSet = new BitSet(32);
+            for (let ibit = 0; ibit < 10; ibit++)
+                e.set(Math.round(Math.random() * 32));
+            let es: string = BitSet.stringify(e);
+            let a: BitSet = e.clone();
+            let as: string = BitSet.stringify(a);
+
+            tests.push({ e, es, a, as });
+        }
+
+        tests.forEach(function(test) {
+            it('shold be equal ' + test.es, function() {
+                expect(test.es).to.be.equal(test.as);
+            });
+        });
+    });
+    
+    
 });
 
 

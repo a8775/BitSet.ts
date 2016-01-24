@@ -27,8 +27,7 @@ export class BitSet {
     constructor(o: BitSet);
     constructor(o: any) {
         if (typeof o === 'number') {
-            if (o <= 0)
-                throw new BitSetException("BitSet size has to be greater than 0!");
+            this.assertLEN(o);
             this.len = o | 0;
             this.buf = new Uint8Array((o + 7) / 8 | 0);
         }
@@ -53,35 +52,57 @@ export class BitSet {
         if (this.len !== b.len)
             throw new BitSetException('Length of two BitSet objects not equal!')
     }
+    
+    /**
+     * check the size of new BitSet 
+     * Warning: temporarly the size of BitSet has to be multiply of 8 
+     * @param  {number} l in bits
+     * @returns void
+     */
+    private assertLEN(l: number): void {
+        if (l === undefined)
+            throw new BitSetException('Lenght of BitSet not defined!')
+        if (l <= 0)
+            throw new BitSetException('Lenght of BitSet has to be greater than zero!')
+            
+        // temporary
+        if (l % 8 !== 0)
+            throw new BitSetException('Temporary: Length of BitSet have to be the multiply of 8 bit!')
+    }
 
     /**
      * create a copy of BitSet
      * @returns BitSet
      */
     public clone(): BitSet {
-        let l = this.len;
-        let r: BitSet = new BitSet(l);
-        let rbuf = r.buf;
         let tbuf = this.buf;
+        let tlen = tbuf.length;
+        let r: BitSet = new BitSet(this.len);
+        let rbuf = r.buf;
 
-        for (let i = 0; i < l; i++)
+        for (let i = 0; i < tlen; i++)
             rbuf[i] = tbuf[i];
 
         return r;
     }
-
+    
+    /**
+     * @param  {number} l in bits
+     * @returns BitSet
+     */
     public resize(l: number): BitSet {
-        let len: number = this.buf.length;
+        this.assertLEN(l);
 
-        if (len === l)
+        if (this.len === l)
             return this;
 
-        let lc: number = Math.min(len, l);
-        let tmpb: Uint8Array = new Uint8Array(l);
-        let b: Uint8Array = this.buf;
-        for (let i = 0; i < lc; i++)
-            tmpb[i] = b[i];
+        let tmpb: Uint8Array = new Uint8Array(((l + 7) / 8) | 0);
+        let tbuf: Uint8Array = this.buf;
+        for (let i = 0; (i < this.buf.length) && (i < tmpb.length); i++)
+            tmpb[i] = tbuf[i];
+
         this.buf = tmpb;
+        this.len = l;
 
         return this;
     }
