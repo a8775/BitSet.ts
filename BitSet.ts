@@ -39,7 +39,7 @@ export class BitSet {
             }
         }
         else {
-            throw new BitSetException('Constructor for that type is not implemented!')
+            throw new BitSetException('Constructor for that type is not implemented!');
         }
     }
     
@@ -50,24 +50,22 @@ export class BitSet {
      */
     private assertEQ(b: BitSet): void {
         if (this.len !== b.len)
-            throw new BitSetException('Length of two BitSet objects not equal!')
+            throw new BitSetException('Length of two BitSet objects not equal!');
     }
     
     /**
      * check the size of new BitSet 
-     * Warning: temporarly the size of BitSet has to be multiply of 8 
+     * Warning: the size of BitSet has to be multiply of 8 
      * @param  {number} l in bits
      * @returns void
      */
     private assertLEN(l: number): void {
         if (l === undefined)
-            throw new BitSetException('Lenght of BitSet not defined!')
+            throw new BitSetException('Length of BitSet not defined!');
         if (l <= 0)
-            throw new BitSetException('Lenght of BitSet has to be greater than zero!')
-            
-        // temporary
+            throw new BitSetException('Length of BitSet has to be greater than zero!');
         if (l % 8 !== 0)
-            throw new BitSetException('Temporary: Length of BitSet have to be the multiply of 8 bit!')
+            throw new BitSetException('Length of BitSet have to be the multiply of 8 bit!');
     }
 
     /**
@@ -369,7 +367,7 @@ export class BitSet {
 
         if ((t === undefined) || (t === BitSetSerializeType.OneZero)) {
             if (t === BitSetSerializeType.OneZero)
-                ret = "BitSet:01:";
+                ret = `BitSet:01(${l}):`;
             for (let i = l - 1; i >= 0; i--) {
                 if (b.isset(i) === true)
                     ret += "1";
@@ -381,14 +379,14 @@ export class BitSet {
 
         if (t === BitSetSerializeType.Hex) {
             let a: string[] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
-            ret = "BitSet:HEX:";
+            ret = `BitSet:HEX(${l}):`;
             for (let i = s - 1; i >= 0; i--)
                 ret += a[(b.buf[i] >>> 4) | 0] + a[(b.buf[i] & 0x0F) | 0];
             return ret;
         }
 
         if (t === BitSetSerializeType.Base64)
-            return "BitSet:BASE64:" + (new Buffer(b.buf).toString('base64'));
+            return `BitSet:BASE64(${l}):` + (new Buffer(b.buf).toString('base64'));
 
         return null;
     }
@@ -399,13 +397,13 @@ export class BitSet {
      * @returns BitSetSerializeType encoding type or null if something wrong
      */
     private static checkformat(s: string): BitSetSerializeType {
-        if (s.indexOf("BitSet:01:") === 0)
+        if (s.indexOf("BitSet:01") === 0)
             return BitSetSerializeType.OneZero;
 
-        if (s.indexOf("BitSet:HEX:") === 0)
+        if (s.indexOf("BitSet:HEX") === 0)
             return BitSetSerializeType.Hex;
 
-        if (s.indexOf("BitSet:BASE64:") === 0)
+        if (s.indexOf("BitSet:BASE64") === 0)
             return BitSetSerializeType.Base64;
 
         // no prefix, check if 01 string            
@@ -424,48 +422,81 @@ export class BitSet {
     }
 
     private static parseOneZero(s: string): BitSet {
-        let i = 0;
-        let p = "BitSet:01:";
+        let b: BitSet = null;
 
-        if (s.indexOf(p) === 0)
-            i = p.length;
+        if (s.indexOf("BitSet:01") === 0) {
+            let myRe = /^BitSet:01\((\d+)\):([01]+)/g;
+            let r = myRe.exec(s);
+            if (r === null)
+                throw new BitSetException('Parse OneZero format (prefixed) failed - syntax error!');
+            let l = parseInt(r[1]);
+            if (r[2].length !== l)
+                throw new BitSetException('Parse OneZero format (prefixed) failed - length mismatch! ');
 
-        let l = s.length - i;
-        let b: BitSet = new BitSet(l);
-        for (let idx = 0; i < l; i++ , idx++)
-            if (s.charAt(i) === "1")
-                b.set(l - idx - 1);
+            b = new BitSet(l);
+            for (let i = 0; i < l; i++)
+                if (r[2].charAt(i) === "1")
+                    b.set(l - i - 1);
+        }
+        else {
+            let l = s.length;
+            b = new BitSet(l);
+            for (let i = 0; i < l; i++)
+                if (s.charAt(i) === "1")
+                    b.set(l - i - 1);
+                else if (s.charAt(i) !== "0")
+                    throw new BitSetException('Parse OneZero format (not prefixed) failed - syntax error!');
 
+        }
         return b;
     }
 
     private static parseBase64(s: string): BitSet {
         let i = 0;
-        let p = "BitSet:BASE64:";
+        let p = "BitSet:BASE64";
 
         if (s.indexOf(p) !== 0)
-            return null;
-        i = p.length;
+            throw new BitSetException('Parse BASE64 format failed - no BitSet:BASE64 prefix!');
 
-        var btmp = new Buffer(s.substr(i), 'base64');
-        let b: BitSet = new BitSet((btmp.length * 8) | 0); //!!!
+        let myRe = /^BitSet:BASE64\((\d+)\):(.+)/g;
+        let r = myRe.exec(s);
+        if (r === null)
+            throw new BitSetException('Parse BASE64 format failed - syntax error!');
+        let l = parseInt(r[1]);
+
+        if ((l % 8) !== 0)
+            throw new BitSetException('Parse BASE64 format failed - length has to be a multiply of 8!');
+
+        var btmp = new Buffer(r[2], 'base64');
+        if (l != btmp.length * 8)
+            throw new BitSetException('Parse BASE64 format failed - length mismatch! ');
+
+        let b: BitSet = new BitSet((btmp.length * 8) | 0);
         b.buf = new Uint8Array(btmp);
 
         return b;
     }
 
     private static parseHex(s: string): BitSet {
-        let i = 0;
-        let p = "BitSet:HEX:";
+        if (s.indexOf("BitSet:HEX") !== 0)
+            throw new BitSetException('Parse HEX format failed - no BitSet:HEX prefix!');
 
-        if (s.indexOf(p) !== 0)
-            return null;
-        i = p.length;
+        let myRe = /^BitSet:HEX\((\d+)\):([0-9A-F]+)/g;
+        let r = myRe.exec(s);
+        if (r === null)
+            throw new BitSetException('Parse HEX format failed - syntax error!');
+        let l = parseInt(r[1]);
 
-        let b: BitSet = new BitSet(((s.length - i) * 8 / 2) | 0); //!!!
+        if ((l % 8) !== 0)
+            throw new BitSetException('Parse HEX format failed - length has to be a multiply of 8!');
 
-        for (let idx = 0; i < s.length; i += 2, idx++)
-            b.buf[b.buf.length - idx - 1] = parseInt(s.substr(i, 2), 16);
+        if (r[2].length !== l / 4)
+            throw new BitSetException('Parse HEX format failed - length mismatch! ');
+
+        let b: BitSet = new BitSet(l | 0);
+
+        for (let idx = 0, i = 0; i < r[2].length; i += 2, idx++)
+            b.buf[b.buf.length - idx - 1] = parseInt(r[2].substr(i, 2), 16);
 
         return b;
     }
