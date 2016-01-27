@@ -2,6 +2,12 @@
 TypeScript implementation of a bitset data structure that compactly stores bits. 
 This is Node.js implementation, will not work in a browser without modyfications.
 
+BitSet implementation is based on Uint8Array: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays. 
+The bit position in the array is calculated in the following way: 
+-select a byte in the array: `buf[n/8]`
+-select a bit in the selected byte: `0x01 << (n % 8)`
+Bytes are in little-endian order, the least significiant bits are positioned in lower bytes: https://en.wikipedia.org/wiki/Endianness
+
 Warning: the size of BitSet has to be multiply of 8
 
 ## Can I use it?
