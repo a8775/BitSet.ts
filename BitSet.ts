@@ -56,7 +56,8 @@ export class BitSet {
     }
     
     /**
-     * get reference to underlying buffer with internal representation of data
+     * Get reference to underlying buffer with internal representation of data.
+     * 
      * @returns Uint8Array
      */
     public buffer(): Uint8Array {
@@ -64,7 +65,8 @@ export class BitSet {
     }
     
     /**
-     * create BitSet object based on uint32 bit value passed as number
+     * Create a new BitSet object based on uint32 bit value passed as number.
+     * 
      * @param  {number} o
      * @returns BitSet
      */
@@ -79,7 +81,8 @@ export class BitSet {
     }
     
     /**
-     * create BitSet object based on uint16 bit value passed as number
+     * Create a new BitSet object based on uint16 bit value passed as number.
+     * 
      * @param  {number} o
      * @returns BitSet
      */
@@ -92,7 +95,8 @@ export class BitSet {
     }
     
     /**
-     * create BitSet object based on uint8 bit value passed as number
+     * Create a new BitSet object based on uint8 bit value passed as number.
+     * 
      * @param  {number} o
      * @returns BitSet
      */
@@ -103,7 +107,8 @@ export class BitSet {
     }
     
     /**
-     * private initialization method
+     * Private helper method for initialization.
+     * 
      * @param  {Uint8Array} o
      * @returns void
      */
@@ -116,7 +121,8 @@ export class BitSet {
     }
     
     /**
-     * check the size of this and b are equal to perform operations
+     * Check the size of this and b are equal to perform operations.
+     * 
      * @param  {BitSet} b
      * @returns void
      */
@@ -126,8 +132,9 @@ export class BitSet {
     }
     
     /**
-     * check the size of new BitSet 
-     * Warning: the size of BitSet has to be multiply of 8 
+     * Check the size of new BitSet. 
+     * Warning: the size of BitSet has to be multiply of 8
+     *  
      * @param  {number} l in bits
      * @returns void
      */
@@ -143,7 +150,8 @@ export class BitSet {
     }
     
     /**
-     * check index n is in range of BitSet
+     * Check index n is in range of BitSet.
+     * 
      * @param  {number} n
      * @returns void
      */
@@ -155,7 +163,8 @@ export class BitSet {
     }
 
     /**
-     * create a copy of BitSet
+     * Create a copy of BitSet.
+     * 
      * @returns BitSet
      */
     public clone(): BitSet {
@@ -163,7 +172,8 @@ export class BitSet {
     }
     
     /**
-     * change size of the BitSet
+     * Change size of the BitSet.
+     * 
      * @param  {number} l in bits
      * @returns BitSet
      */
@@ -180,9 +190,35 @@ export class BitSet {
 
         return this;
     }
+    
+    /**
+     * Create a new BitSet by copy range of bits: <s,e>. 
+     * Params s and e can be any, but total number of bits have to be 
+     * a multiply of 8 bits. If e is not given, it is assumed to be to the end.
+     * 
+     * @param  {number} s
+     * @param  {number} e?
+     * @returns BitSet
+     */
+    public range(s: number, e?: number): BitSet {
+        if (e === undefined)
+            e = this.len - 1;
+
+        let l = e - s + 1;
+        if (l % 8 !== 0)
+            throw new BitSetException('Range has to be multiply of 8 bits!');
+
+        let r = new BitSet(l);
+        for (let i = s, idx = 0; i <= e; i++ , idx++)
+            if (this.isset(i) === true)
+                r.set(idx);
+
+        return null;
+    }
 
     /** 
-     * size in bits of BitSet
+     * Size in bits of BitSet
+     * 
      * @returns number
      */
     public length(): number {
@@ -190,10 +226,11 @@ export class BitSet {
     }
     
     /** 
-     * set selected bit, if bit not selected set every bit in buffer.
+     * Set selected bit, if bit not selected set every bit in buffer.
      * If s is not given all bits are set to 1.
      * If s is given but not e, one selected bit is set to 1
-     * If s is given and e, all bits in range <s,e) are set to 1 
+     * If s is given and e, all bits in range <s,e> are set to 1
+     *  
      * @param  {number} s?
      * @param  {number} e?
      * @returns BitSet
@@ -217,10 +254,11 @@ export class BitSet {
     }
 
     /** 
-     * unset selected bit, if bit not selected unset every bit in buffer
+     * Unset selected bit, if bit not selected unset every bit in buffer
      * If s is not given all bits are set to 0.
      * If s is given but not e, one selected bit is set to 0
-     * If s is given and e, all bits in range <s,e) are set to 0 
+     * If s is given and e, all bits in range <s,e> are set to 0
+     *  
      * @param  {number} s?
      * @param  {number} e?
      * @returns BitSet
@@ -244,7 +282,8 @@ export class BitSet {
     }
 
     /** 
-     * logical operator AND
+     * Logical operator AND.
+     * 
      * @param  {BitSet} b
      * @returns BitSet
      */
@@ -262,7 +301,8 @@ export class BitSet {
     }
 
     /** 
-     * logical operator OR
+     * Logical operator OR.
+     * 
      * @param  {BitSet} b
      * @returns BitSet
      */
@@ -280,7 +320,8 @@ export class BitSet {
     }
 
     /** 
-     * logical operator XOR
+     * Logical operator XOR.
+     * 
      * @param  {BitSet} b
      * @returns BitSet
      */
@@ -298,7 +339,8 @@ export class BitSet {
     }
 
     /** 
-     * logical operator NAND
+     * Logical operator NAND.
+     * 
      * @param  {BitSet} b
      * @returns BitSet
      */
@@ -307,7 +349,8 @@ export class BitSet {
     }
     
     /** 
-     * logical operator NOR
+     * Logical operator NOR.
+     * 
      * @param  {BitSet} b
      * @returns BitSet
      */
@@ -316,7 +359,8 @@ export class BitSet {
     }
     
     /**
-     * check the b is equal to BitSet
+     * Check the b is equal to BitSet.
+     * 
      * @param  {BitSet} b
      * @returns boolean
      */
@@ -335,7 +379,8 @@ export class BitSet {
     }
     
     /**
-     * logical operator NOT 
+     * Logical operator NOT.
+     *  
      * @returns BitSet
      */
     public not(): BitSet {
@@ -349,7 +394,9 @@ export class BitSet {
     }
 
     /** 
-     * check if is selected bit is set, if not selected check if any bit is set
+     * Check if is selected bit is set.
+     * If bit not selected check if any bit is set.
+     * 
      * @param  {number} n?
      * @returns boolean
      */
@@ -367,7 +414,8 @@ export class BitSet {
     }
     
     /** 
-     * shift the buffer left (if n is positive) or right (if n is negative)
+     * Shift the buffer left (if n is positive) or right (if n is negative).
+     * 
      * @param  {number} n?
      * @returns BitSet
      */
@@ -429,8 +477,9 @@ export class BitSet {
     }
 
     /**
-     * stringify BitSet object with selected algorithm, if not selected use
-     * 01 algorithm without prefix
+     * Stringify BitSet object with selected algorithm, if not selected use
+     * 01 (ZeroOne) algorithm without prefix.
+     * 
      * @param  {BitSet} b
      * @param  {BitSetSerializeType} t?
      * @returns string
@@ -466,6 +515,13 @@ export class BitSet {
         return null;
     }
 
+    /**
+     * Parse OneZero format with or without prefix and 
+     * return new BitSet object. Throw exception on error.
+     * 
+     * @param  {string} s
+     * @returns BitSet
+     */
     private static parseOneZero(s: string): BitSet {
         let l = s.length;
         let ss = s;
@@ -492,6 +548,13 @@ export class BitSet {
         return b;
     }
 
+    /**
+     * Parse Base64 format and return new BitSet object. 
+     * Throw exception on error.
+     * 
+     * @param  {string} s
+     * @returns BitSet
+     */
     private static parseBase64(s: string): BitSet {
         if (s.indexOf("BitSet:BASE64") !== 0)
             throw new BitSetException('Parse BASE64 format failed - no BitSet:BASE64 prefix!');
@@ -514,7 +577,14 @@ export class BitSet {
 
         return b;
     }
-
+    
+    /**
+     * Parse Hex format and return new BitSet object. 
+     * Throw exception on error.
+     * 
+     * @param  {string} s
+     * @returns BitSet
+     */
     private static parseHex(s: string): BitSet {
         if (s.indexOf("BitSet:HEX") !== 0)
             throw new BitSetException('Parse HEX format failed - no BitSet:HEX prefix!');
@@ -540,7 +610,9 @@ export class BitSet {
     }
 
     /**
-     * parse string and create new BitSet object
+     * Parse string and create new BitSet object.
+     * Throw exception on error.
+     * 
      * @param  {string} s
      * @returns BitSet
      */
