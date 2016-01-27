@@ -69,12 +69,12 @@ export class BitSet {
      * @returns BitSet
      */
     public static create32bit(o: number): BitSet {
-        let n = o&0xFFFFFFFF;
+        let n = o & 0xFFFFFFFF;
         let r = new BitSet(32);
-        r.buf[0] = ((n>>>0)&0xFF);
-        r.buf[1] = ((n>>>8)&0xFF);
-        r.buf[2] = ((n>>>16)&0xFF);
-        r.buf[3] = ((n>>>24)&0xFF);
+        r.buf[0] = ((n >>> 0) & 0xFF);
+        r.buf[1] = ((n >>> 8) & 0xFF);
+        r.buf[2] = ((n >>> 16) & 0xFF);
+        r.buf[3] = ((n >>> 24) & 0xFF);
         return r;
     }
     
@@ -84,10 +84,10 @@ export class BitSet {
      * @returns BitSet
      */
     public static create16bit(o: number): BitSet {
-        let n = o&0xFFFF;
+        let n = o & 0xFFFF;
         let r = new BitSet(16);
-        r.buf[0] = ((n>>>0)&0xFF);
-        r.buf[1] = ((n>>>8)&0xFF);
+        r.buf[0] = ((n >>> 0) & 0xFF);
+        r.buf[1] = ((n >>> 8) & 0xFF);
         return r;
     }
     
@@ -98,7 +98,7 @@ export class BitSet {
      */
     public static create8bit(o: number): BitSet {
         let r = new BitSet(8);
-        r.buf[0] = o&0xFF;
+        r.buf[0] = o & 0xFF;
         return r;
     }
     
@@ -150,7 +150,7 @@ export class BitSet {
     private assertIDX(n: number): void {
         if (n < 0)
             throw new BitSetException("Index out of range: index has to be greater than 0!");
-        if (n > this.len)
+        if (n >= this.len)
             throw new BitSetException("Index out of range: index has to be lower than length!");
     }
 
@@ -190,35 +190,55 @@ export class BitSet {
     }
     
     /** 
-     * set selected bit, if bit not selected set every bit in buffer
-     * @param  {number} n?
+     * set selected bit, if bit not selected set every bit in buffer.
+     * If s is not given all bits are set to 1.
+     * If s is given but not e, one selected bit is set to 1
+     * If s is given and e, all bits in range <s,e) are set to 1 
+     * @param  {number} s?
+     * @param  {number} e?
      * @returns BitSet
      */
-    public set(n?: number): BitSet {
-        if (n !== undefined) {
-            this.assertIDX(n);
-            this.buf[(n / 8) | 0] |= (0x01 << (n % 8));
+    public set(s?: number, e?: number): BitSet {
+        if (s !== undefined) {
+            if (e == undefined) {
+                this.assertIDX(s);
+                this.buf[(s / 8) | 0] |= (0x01 << (s % 8));
+            }
+            else {
+                this.assertIDX(e);
+                for (let i = s; i <= e; i++)
+                    this.buf[(i / 8) | 0] |= (0x01 << (i % 8));
+            }
         }
-        else {
+        else
             this.buf.fill(0xFF);
-        }
 
         return this;
     }
 
     /** 
      * unset selected bit, if bit not selected unset every bit in buffer
-     * @param  {number} n?
+     * If s is not given all bits are set to 0.
+     * If s is given but not e, one selected bit is set to 0
+     * If s is given and e, all bits in range <s,e) are set to 0 
+     * @param  {number} s?
+     * @param  {number} e?
      * @returns BitSet
      */
-    public unset(n?: number): BitSet {
-        if (n) {
-            this.assertIDX(n);
-            this.buf[n / 8] &= ~(0x01 << (n % 8));
+    public unset(s?: number, e?: number): BitSet {
+        if (s !== undefined) {
+            if (e == undefined) {
+                this.assertIDX(s);
+                this.buf[s / 8] &= ~(0x01 << (s % 8));
+            }
+            else {
+                this.assertIDX(e);
+                for (let i = s; i <= e; i++)
+                    this.buf[i / 8] &= ~(0x01 << (i % 8));
+            }
         }
-        else {
+        else
             this.buf.fill(0);
-        }
 
         return this;
     }

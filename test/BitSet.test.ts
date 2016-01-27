@@ -39,7 +39,7 @@ describe('BitSet.ts tests...', function() {
         for (let itest = 0; itest < 10; itest++) {
             let e: BitSet = new BitSet(32);
             for (let ibit = 0; ibit < 10; ibit++)
-                e.set(Math.round(Math.random() * 32));
+                e.set(Math.round(Math.random() * 31));
             let es: string = BitSet.stringify(e);
             let a: BitSet = BitSet.parse(es);
             let as: string = BitSet.stringify(a);
@@ -56,7 +56,7 @@ describe('BitSet.ts tests...', function() {
 
     describe('Test shift left by 1: shift(1) and set(n)', function() {
         let tests: { e: BitSet, es: string, a: BitSet, as: string }[] = [];
-        for (let itest = 0; itest < 33; itest++) {
+        for (let itest = 0; itest < 32; itest++) {
             let e: BitSet = new BitSet(32);
             e.set(0);
             let a: BitSet = new BitSet(32);
@@ -198,7 +198,7 @@ describe('BitSet.ts tests...', function() {
         for (let itest = 0; itest < 10; itest++) {
             let e: BitSet = new BitSet(32);
             for (let ibit = 0; ibit < 10; ibit++)
-                e.set(Math.round(Math.random() * 32));
+                e.set(Math.round(Math.random() * 31));
             let es: string = BitSet.stringify(e);
             let a: BitSet = e.clone();
             let as: string = BitSet.stringify(a);
@@ -270,7 +270,7 @@ describe('BitSet.ts tests...', function() {
         for (let itest = 0; itest < 10; itest++) {
             let e: BitSet = new BitSet(32);
             for (let ibit = 0; ibit < 10; ibit++)
-                e.set(Math.round(Math.random() * 32));
+                e.set(Math.round(Math.random() * 31));
             let es: string = BitSet.stringify(e, BitSetSerializeType.OneZero);
             let a: BitSet = BitSet.parse(es);
             let as: string = BitSet.stringify(a, BitSetSerializeType.OneZero);
@@ -338,8 +338,6 @@ describe('BitSet.ts tests...', function() {
             expect(BitSet.stringify(BitSet.create8bit(0x37568348), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(8):48");
         });
     });
-
-
 
 });
 
