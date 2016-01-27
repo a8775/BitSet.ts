@@ -11,10 +11,15 @@ Bytes are in little-endian order, the least significiant bits are positioned in 
 
 _Warning_: the size of BitSet has to be multiply of 8 bits
 
+_Warning_: `stringify()` - for easy reading:
+- `OneZero` method is serializing from most significant bit.
+- `Hex` method is serializing in big-endian order (most significant bytes first).
+
 ## Can I use it?
 Yes, but not for production, as code is not stabilized and not fully tested.
 
 ## Examples
+Some examples could be found in tests.
 
 ## Dependency
 No external dependencies, only for testing mocha and chai are required.
