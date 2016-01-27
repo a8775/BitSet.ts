@@ -144,7 +144,7 @@ export class BitSet {
         if (l <= 0)
             throw new BitSetException('Length of BitSet has to be greater than zero!');
         if (l !== (l | 0))
-            throw new BitSetException('Length of BitSet has to be integer value!');
+            throw new BitSetException('Length of BitSet has to be an integer value!');
         if (l % 8 !== 0)
             throw new BitSetException('Length of BitSet have to be the multiply of 8 bit!');
     }
@@ -156,6 +156,8 @@ export class BitSet {
      * @returns void
      */
     private assertIDX(n: number): void {
+        if (n != (n | 0))
+            throw new BitSetException('Index has to be an integer value!');
         if (n < 0)
             throw new BitSetException("Index out of range: index has to be greater than 0!");
         if (n >= this.len)
@@ -203,6 +205,9 @@ export class BitSet {
     public range(s: number, e?: number): BitSet {
         if (e === undefined)
             e = this.len - 1;
+            
+        this.assertIDX(s);
+        this.assertIDX(e);
 
         let l = e - s + 1;
         if (l % 8 !== 0)
@@ -237,8 +242,8 @@ export class BitSet {
      */
     public set(s?: number, e?: number): BitSet {
         if (s !== undefined) {
+            this.assertIDX(s);
             if (e == undefined) {
-                this.assertIDX(s);
                 this.buf[(s / 8) | 0] |= (0x01 << (s % 8));
             }
             else {
@@ -265,8 +270,8 @@ export class BitSet {
      */
     public unset(s?: number, e?: number): BitSet {
         if (s !== undefined) {
+            this.assertIDX(s);
             if (e == undefined) {
-                this.assertIDX(s);
                 this.buf[s / 8] &= ~(0x01 << (s % 8));
             }
             else {
