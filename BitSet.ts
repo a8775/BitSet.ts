@@ -56,6 +56,53 @@ export class BitSet {
     }
     
     /**
+     * get reference to underlying buffer with internal representation of data
+     * @returns Uint8Array
+     */
+    public buffer(): Uint8Array {
+        return this.buf;
+    }
+    
+    /**
+     * create BitSet object based on uint32 bit value passed as number
+     * @param  {number} o
+     * @returns BitSet
+     */
+    public static create32bit(o: number): BitSet {
+        let n = o&0xFFFFFFFF;
+        let r = new BitSet(32);
+        r.buf[0] = ((n>>>0)&0xFF);
+        r.buf[1] = ((n>>>8)&0xFF);
+        r.buf[2] = ((n>>>16)&0xFF);
+        r.buf[3] = ((n>>>24)&0xFF);
+        return r;
+    }
+    
+    /**
+     * create BitSet object based on uint16 bit value passed as number
+     * @param  {number} o
+     * @returns BitSet
+     */
+    public static create16bit(o: number): BitSet {
+        let n = o&0xFFFF;
+        let r = new BitSet(16);
+        r.buf[0] = ((n>>>0)&0xFF);
+        r.buf[1] = ((n>>>8)&0xFF);
+        return r;
+    }
+    
+    /**
+     * create BitSet object based on uint8 bit value passed as number
+     * @param  {number} o
+     * @returns BitSet
+     */
+    public static create8bit(o: number): BitSet {
+        let r = new BitSet(8);
+        r.buf[0] = o&0xFF;
+        return r;
+    }
+    
+    /**
      * private initialization method
      * @param  {Uint8Array} o
      * @returns void

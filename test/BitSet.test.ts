@@ -285,6 +285,60 @@ describe('BitSet.ts tests...', function() {
         });
     });
 
+    describe('Test create32bit()', function() {
+        it('value 0x00000000', function() {
+            expect(BitSet.stringify(BitSet.create32bit(0x00000000), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(32):00000000");
+        });
+        it('value 0x00000001', function() {
+            expect(BitSet.stringify(BitSet.create32bit(0x00000001), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(32):00000001");
+        });
+        it('value 0x80008081', function() {
+            expect(BitSet.stringify(BitSet.create32bit(0x80008081), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(32):80008081");
+        });
+        it('value 0xFFFFFFFF', function() {
+            expect(BitSet.stringify(BitSet.create32bit(0xFFFFFFFF), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(32):FFFFFFFF");
+        });
+        it('value 0x37568348', function() {
+            expect(BitSet.stringify(BitSet.create32bit(0x37568348), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(32):37568348");
+        });
+    });
+
+    describe('Test create16bit()', function() {
+        it('value 0x00000000,easy value', function() {
+            expect(BitSet.stringify(BitSet.create16bit(0x00000000), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(16):0000");
+        });
+        it('value 0x00000001, easy value', function() {
+            expect(BitSet.stringify(BitSet.create16bit(0x00000001), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(16):0001");
+        });
+        it('value 0x80008081, should be truncated', function() {
+            expect(BitSet.stringify(BitSet.create16bit(0x80008081), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(16):8081");
+        });
+        it('value 0xFFFFFFFF, should be truncated', function() {
+            expect(BitSet.stringify(BitSet.create16bit(0xFFFFFFFF), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(16):FFFF");
+        });
+        it('value 0x37568348, should be truncated', function() {
+            expect(BitSet.stringify(BitSet.create16bit(0x37568348), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(16):8348");
+        });
+    });
+
+    describe('Test create8bit()', function() {
+        it('value 0x00000000,easy value', function() {
+            expect(BitSet.stringify(BitSet.create8bit(0x00000000), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(8):00");
+        });
+        it('value 0x00000001, easy value', function() {
+            expect(BitSet.stringify(BitSet.create8bit(0x00000001), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(8):01");
+        });
+        it('value 0x80008081, should be truncated', function() {
+            expect(BitSet.stringify(BitSet.create8bit(0x80008081), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(8):81");
+        });
+        it('value 0xFFFFFFFF, should be truncated', function() {
+            expect(BitSet.stringify(BitSet.create8bit(0xFFFFFFFF), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(8):FF");
+        });
+        it('value 0x37568348, should be truncated', function() {
+            expect(BitSet.stringify(BitSet.create8bit(0x37568348), BitSetSerializeType.Hex)).to.be.equal("BitSet:HEX(8):48");
+        });
+    });
+
 
 
 });
