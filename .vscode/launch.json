@@ -5,10 +5,10 @@
 			"name": "Launch",
 			"type": "node",
 			"request": "launch",
-			"program": "BitSet.ts",
+			"program": "${workspaceRoot}/BitSet.ts",
 			"stopOnEntry": false,
 			"args": [],
-			"cwd": ".",
+			"cwd": "${workspaceRoot}/.",
 			"runtimeExecutable": null,
 			"runtimeArgs": [
 				"--nolazy"
@@ -24,10 +24,10 @@
 			"name": "Launch test",
 			"type": "node",
 			"request": "launch",
-			"program": "test.ts",
+			"program": "${workspaceRoot}/test.ts",
 			"stopOnEntry": false,
 			"args": [],
-			"cwd": ".",
+			"cwd": "${workspaceRoot}/.",
 			"runtimeExecutable": null,
 			"runtimeArgs": [
 				"--nolazy"
