@@ -1,5 +1,3 @@
-'use strict';
-
 export class BitSetException implements Error {
     public name: string = "BitSetException";
     public message: string = "";

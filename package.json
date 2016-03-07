@@ -1,5 +1,5 @@
 {
-  "name": "BitSet.ts",
+  "name": "bitset.ts",
   "version": "0.0.1",
   "description": "TypeScript implementation of a bitset data structure that compactly stores bits.",
   "main": "bitset.ts",
@@ -18,6 +18,10 @@
   ],
   "author": "a8775",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/a8775/BitSet.ts/issues"
+  },
+  "homepage": "https://github.com/a8775/BitSet.ts#readme",
   "devDependencies": {
     "chai": "*",
     "mocha": "*"

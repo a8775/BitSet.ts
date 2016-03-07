@@ -1,5 +1,3 @@
-'use strict';
-
 import assert = require('assert');
 import chai = require('chai');
 var expect = chai.expect;
