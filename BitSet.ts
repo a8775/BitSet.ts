@@ -1,3 +1,10 @@
+/**
+ * BitSet exception type
+ * 
+ * @export
+ * @class BitSetException
+ * @implements {Error}
+ */
 export class BitSetException implements Error {
     public name: string = "BitSetException";
     public message: string = "";
@@ -11,20 +18,57 @@ export class BitSetException implements Error {
     }
 }
 
+/**
+ * BitSet serialize method type
+ * 
+ * @export
+ * @enum {number}
+ */
 export enum BitSetSerializeType {
     OneZero, // 01 encoded string     
     Hex, // hex encoded string
     Base64, // base64 encoded string   
 }
 
+/**
+ * BitSet - the bitset data structure that compactly stores bits.
+ * 
+ * @export
+ * @class BitSet
+ */
 export class BitSet {
     private buf: Uint8Array;
     private len: number;
 
+    /**
+     * Creates an instance of BitSet with specified number of bits.
+     * 
+     * @param {number} o (description)
+     */
     constructor(o: number);
+    /**
+     * Creates an instance of BitSet from BitSet object.
+     * 
+     * @param {BitSet} o (description)
+     */
     constructor(o: BitSet);
+    /**
+     * Creates an instance of BitSet from Buffer object.
+     * 
+     * @param {Buffer} o (description)
+     */
     constructor(o: Buffer);
+    /**
+     * Creates an instance of BitSet from ArryBuffer object.
+     * 
+     * @param {ArrayBuffer} o (description)
+     */
     constructor(o: ArrayBuffer);
+    /**
+     * Creates an instance of BitSet from Uint8Array object.
+     * 
+     * @param {Uint8Array} o (description)
+     */
     constructor(o: Uint8Array);
     constructor(o: any) {
         if (o === undefined)
