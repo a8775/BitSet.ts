@@ -11,9 +11,9 @@ Bytes are in little-endian order, the least significiant bits are positioned in 
 
 _Warning_: the size of BitSet has to be multiply of 8 bits
 
-_Warning_: `stringify()` - for easy reading:
-- `OneZero` method is serializing from most significant bit.
-- `Hex` method is serializing in big-endian order (most significant bytes first).
+_Warning_: `stringify(b: BitSet, t?: BitSetSerializeType): string` - for easy reading:
+- `BitSetSerializeType.OneZero` method is serializing from most significant bit.
+- `BitSetSerializeType.Hex` method is serializing in big-endian order (most significant bytes first).
 
 ## Can I use it?
 Yes, but not for production, as code is not stabilized and not fully tested.
@@ -33,6 +33,6 @@ in working directory:
 
 `npm install`
 
-`tsd install`
+`typings install`
 
 
