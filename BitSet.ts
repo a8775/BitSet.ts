@@ -84,7 +84,7 @@ export class BitSet {
             this.len = o.len;
         }
         else if (o instanceof Buffer) {
-            this.init(o);
+            this.init(new Uint8Array(o));
         }
         else if (o instanceof ArrayBuffer) {
             this.init(new Uint8Array(o));
@@ -113,7 +113,7 @@ export class BitSet {
      * @returns BitSet
      */
     public static create32bit(o: number): BitSet {
-        let n = o & 0xFFFFFFFF;
+        let n = (o & 0xFFFFFFFF)>>>0;
         let r = new BitSet(32);
         r.buf[0] = ((n >>> 0) & 0xFF);
         r.buf[1] = ((n >>> 8) & 0xFF);
@@ -129,7 +129,7 @@ export class BitSet {
      * @returns BitSet
      */
     public static create16bit(o: number): BitSet {
-        let n = o & 0xFFFF;
+        let n = (o & 0xFFFF)>>>0;
         let r = new BitSet(16);
         r.buf[0] = ((n >>> 0) & 0xFF);
         r.buf[1] = ((n >>> 8) & 0xFF);
